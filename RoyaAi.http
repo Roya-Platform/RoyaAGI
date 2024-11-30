@@ -1,0 +1,208 @@
+### Variables
+@baseUrl = http://localhost:5000
+@contentType = application/json
+@taskId = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+@artifactId = 5da85f64-5717-4562-b3fc-2c963f66afa7
+@stepId = 7fa85f64-5717-4562-b3fc-2c963f66afa8
+
+### Health Check
+GET {{baseUrl}}/health
+Accept: {{contentType}}
+
+### API Version
+GET {{baseUrl}}/v1
+Accept: {{contentType}}
+
+### --------------------------
+### AGENT PROTOCOL ENDPOINTS
+### --------------------------
+
+### List Tasks
+GET {{baseUrl}}/v1/agent/tasks
+Accept: {{contentType}}
+
+### Create Task
+POST {{baseUrl}}/v1/agent/tasks
+Content-Type: {{contentType}}
+
+{
+  "input": "Analyze the RoyaAI codebase and provide a summary",
+  "additional_input": {
+    "system_prompt": "You are an assistant tasked with analyzing codebases"
+  }
+}
+
+### Get Task
+GET {{baseUrl}}/v1/agent/tasks/{{taskId}}
+Accept: {{contentType}}
+
+### List Task Steps
+GET {{baseUrl}}/v1/agent/tasks/{{taskId}}/steps
+Accept: {{contentType}}
+
+### Execute Task Step
+POST {{baseUrl}}/v1/agent/tasks/{{taskId}}/steps
+Content-Type: {{contentType}}
+
+{
+  "input": {
+    "thought": "I should look at the project structure first",
+    "action": "examine_files"
+  }
+}
+
+### Get Task Step
+GET {{baseUrl}}/v1/agent/tasks/{{taskId}}/steps/{{stepId}}
+Accept: {{contentType}}
+
+### List Task Artifacts
+GET {{baseUrl}}/v1/agent/tasks/{{taskId}}/artifacts
+Accept: {{contentType}}
+
+### Generate Task Artifact
+POST {{baseUrl}}/v1/agent/tasks/{{taskId}}/artifacts
+Content-Type: {{contentType}}
+
+{
+  "file_name": "analysis-report.md",
+  "relative_path": "./outputs/",
+  "data": "IyBDb2RlIEFuYWx5c2lzIFJlcG9ydAoKVGhpcyBjb2RlYmFzZSBpbXBsZW1lbnRzIHRoZSBBZ2VudCBQcm90b2NvbCBzdGFuZGFyZC4="
+}
+
+### Get Task Artifact
+GET {{baseUrl}}/v1/agent/tasks/{{taskId}}/artifacts/{{artifactId}}
+Accept: {{contentType}}
+
+### Download Task Artifact Content
+GET {{baseUrl}}/v1/agent/tasks/{{taskId}}/artifacts/{{artifactId}}/content
+Accept: application/octet-stream
+
+### Cancel Task
+POST {{baseUrl}}/v1/agent/tasks/{{taskId}}/cancel
+Content-Type: {{contentType}}
+
+{}
+
+### --------------------------
+### FILE OPERATIONS
+### --------------------------
+
+### List Files
+GET {{baseUrl}}/v1/files
+Accept: {{contentType}}
+
+### List Files With Path
+GET {{baseUrl}}/v1/files?path=/projects
+Accept: {{contentType}}
+
+### Read File
+GET {{baseUrl}}/v1/files/read?path=/projects/example.txt
+Accept: {{contentType}}
+
+### Create File
+POST {{baseUrl}}/v1/files/create
+Content-Type: {{contentType}}
+
+{
+  "path": "/projects/newfile.txt",
+  "content": "This is a test file created via API"
+}
+
+### Update File
+PUT {{baseUrl}}/v1/files/update
+Content-Type: {{contentType}}
+
+{
+  "path": "/projects/existingfile.txt",
+  "content": "This is updated content for the file"
+}
+
+### Delete File
+DELETE {{baseUrl}}/v1/files/delete?path=/projects/deleteme.txt
+Accept: {{contentType}}
+
+### --------------------------
+### SHELL OPERATIONS
+### --------------------------
+
+### Execute Shell Command
+POST {{baseUrl}}/v1/shell/execute
+Content-Type: {{contentType}}
+
+{
+  "command": "ls -la",
+  "workingDirectory": "/projects"
+}
+
+### --------------------------
+### SYSTEM INFORMATION
+### --------------------------
+
+### Get System Info
+GET {{baseUrl}}/v1/system/info
+Accept: {{contentType}}
+
+### Get Memory Usage
+GET {{baseUrl}}/v1/system/memory
+Accept: {{contentType}}
+
+### Get Disk Usage
+GET {{baseUrl}}/v1/system/disk
+Accept: {{contentType}}
+
+### Get CPU Usage
+GET {{baseUrl}}/v1/system/cpu
+Accept: {{contentType}}
+
+### --------------------------
+### DIRECTORY OPERATIONS
+### --------------------------
+
+### Create Directory
+POST {{baseUrl}}/v1/directories/create
+Content-Type: {{contentType}}
+
+{
+  "path": "/projects/newdirectory"
+}
+
+### List Directories
+GET {{baseUrl}}/v1/directories?path=/projects
+Accept: {{contentType}}
+
+### Delete Directory
+DELETE {{baseUrl}}/v1/directories/delete?path=/projects/olddirectory
+Accept: {{contentType}}
+
+### --------------------------
+### SECURITY & PERMISSIONS
+### --------------------------
+
+### Get Firewall Rules
+GET {{baseUrl}}/v1/security/firewall/rules
+Accept: {{contentType}}
+
+### Get Access Log
+GET {{baseUrl}}/v1/security/logs/access
+Accept: {{contentType}}
+
+### --------------------------
+### MEMORY OPERATIONS
+### --------------------------
+
+### Get Conversation History
+GET {{baseUrl}}/v1/memory/conversations/{{taskId}}
+Accept: {{contentType}}
+
+### Store Memory Item
+POST {{baseUrl}}/v1/memory/store
+Content-Type: {{contentType}}
+
+{
+  "key": "project_analysis",
+  "value": "This project implements the Agent Protocol standard"
+}
+
+### Retrieve Memory Item
+GET {{baseUrl}}/v1/memory/retrieve?key=project_analysis
+Accept: {{contentType}} 

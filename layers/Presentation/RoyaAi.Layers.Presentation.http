@@ -1,0 +1,6 @@
+@RoyaAi.Layers.Presentation_HostAddress = http://localhost:5265
+
+GET {{RoyaAi.Layers.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
