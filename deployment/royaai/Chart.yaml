@@ -1,0 +1,6 @@
+apiVersion: v2
+name: royaai
+description: A Helm chart for RoyaAI Agent Protocol implementation
+type: application
+version: 0.1.0
+appVersion: "1.0.0" 
