@@ -1,0 +1,33 @@
+Implement both function signatures and bodies that fulfill the requirements in the provided unit test file, with the following architecture:
+
+1. Architecture Requirements:
+   - Create a service layer with properly defined interfaces
+   - Implement a kernel layer that uses these services
+   - Follow strict Dependency Injection patterns throughout
+   - Structure code according to IoC principles
+
+2. Implementation Guidelines:
+   - Use async/await practices consistently for all asynchronous operations
+   - Implement only the functionality needed to pass the unit tests
+   - Keep the code concise without unnecessary comments
+   - Ensure all kernel functions properly interact with the service layer
+
+3. Service Layer:
+   - Define clear interfaces for each service
+   - Implement concrete service classes that fulfill these interfaces
+   - Design services to be stateless and focused on specific responsibilities
+   - Register services properly for dependency injection
+
+4. Kernel Layer:
+   - Create kernel functions that coordinate operations using injected services
+   - Ensure kernel functions are properly exposed for unit testing
+   - Maintain separation of concerns between kernel and service layers
+   - Implement kernel functions to match the exact signatures expected by tests
+
+5. Testing Approach:
+   - The unit tests will call kernel functions, not services directly
+   - The kernel will need to properly orchestrate service calls
+   - Follow SOLID principles throughout implementation
+   - Ensure all dependencies are injectable for proper unit testing
+
+Provide complete implementations with proper dependency injection setup to enable isolated testing as specified.
