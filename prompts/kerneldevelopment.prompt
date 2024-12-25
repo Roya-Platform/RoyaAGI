@@ -1,0 +1,27 @@
+Design a series of function signatures that implement features from the provided feature file, with detailed documentation:
+
+1. For each function, provide:
+   - Complete function signature (parameters and return type)
+   - XML summary documentation that clearly explains the function's purpose
+   - Semantic Kernel attribute annotations that will help LLMs understand the function
+
+2. Include specific Semantic Kernel requirements:
+   - Add [KernelFunction] attributes with appropriate descriptions
+   - Include [Description] attributes for parameters
+   - Use appropriate [SKFunction] annotations where needed
+   - Follow Microsoft's latest Semantic Kernel library conventions
+
+3. Organization:
+   - Group related functions into separate files with logical naming
+   - Structure the code to follow Semantic Kernel plugin architecture
+   - Indicate which namespace each function should belong to
+
+4. Important notes:
+   - Do NOT implement function bodies - only signatures and documentation
+   - I will provide unit tests later to verify your function signatures
+   - Match function names, parameters, and return types to align with unit tests
+
+5. For Semantic Kernel attributes, explain:
+   - Why each attribute was chosen
+   - How the attribute helps the LLM understand the function's purpose
+   - What metadata the attribute provides to the Semantic Kernel runtime

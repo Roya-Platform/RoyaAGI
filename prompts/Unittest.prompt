@@ -1,0 +1,26 @@
+
+## Write Unit test from Feature file
+Create a comprehensive list of XUnit tests to cover all functionalities in the provided Gherkin scenario. Please:
+
+1. Organize tests into multiple classes following SOLID principles
+2. Include a summary in XML format for each test's functionality
+3. Only provide input/output specifications for each test function (no implementation)
+4. Structure each test with proper setup (Arrange), execution (Act), and verification (Assert)
+5. Note that each test will run in a fully isolated environment
+6. Include test teardown/setup requirements for each test class
+7. Use descriptive names that clearly indicate the test's purpose
+8. Do not implement the body of unit tests
+9. Make sure you provide a brief and complete summary comment for each unit tests based on the related feature file
+
+Format each test as follows:
+- Test name
+- XML summary describing functionality (check the related feature to provide more explanation)
+- Input parameters
+- Expected output
+- Any special setup/teardown requirements
+
+
+ow revise all tset and provide more explanation at the test summary comment, for that you can have access to the other feature files
+@Introduction.feature @startup.feature 
+
+reformat all the C# codes in the unit tests and make sure your are following async/awat practice
