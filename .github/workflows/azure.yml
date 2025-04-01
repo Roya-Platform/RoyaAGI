@@ -1,0 +1,178 @@
+trigger:
+  branches:
+    include:
+    - main
+    - develop
+  paths:
+    exclude:
+    - README.md
+    - docs/*
+
+variables:
+  dotnetVersion: '7.0.x'
+  vmImageName: 'ubuntu-latest'
+  containerRegistry: 'royaairegistry.azurecr.io'
+  imageName: 'royaai-presentation'
+  helmChartPath: './deployment/royaai'
+  helmChartVersion: '0.1.0'
+  acrServiceConnection: 'royaai-acr-connection'
+  k8sServiceConnection: 'royaai-k8s-connection'
+
+stages:
+- stage: Test
+  displayName: 'Test Application'
+  jobs:
+  - job: TestJob
+    displayName: 'Run Tests'
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: UseDotNet@2
+      displayName: 'Setup .NET'
+      inputs:
+        packageType: 'sdk'
+        version: $(dotnetVersion)
+        
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore dependencies'
+      inputs:
+        command: 'restore'
+        projects: '**/*.csproj'
+        
+    - task: DotNetCoreCLI@2
+      displayName: 'Build'
+      inputs:
+        command: 'build'
+        projects: '**/*.csproj'
+        arguments: '--no-restore'
+        
+    - task: DotNetCoreCLI@2
+      displayName: 'Test'
+      inputs:
+        command: 'test'
+        projects: '**/*Tests.csproj'
+        arguments: '--no-build --verbosity normal'
+        
+    - script: |
+        # Install Agent Protocol CLI
+        npm install -g @agent-protocol/cli
+        
+        # Build and start the application
+        dotnet build -c Release ./layers/Presentation/RoyaAi.Layers.Presentation.csproj
+        dotnet ./layers/Presentation/bin/Release/net7.0/RoyaAi.Layers.Presentation.dll &
+        PID=$!
+        
+        # Wait for app to start
+        sleep 10
+        
+        # Run Agent Protocol tests
+        agent-protocol test http://localhost:5000/v1
+        
+        # Stop the application
+        kill $PID
+      displayName: 'Run Agent Protocol Compliance Tests'
+
+- stage: Build
+  displayName: 'Build and Package'
+  dependsOn: Test
+  jobs:
+  - job: BuildJob
+    displayName: 'Build Docker Image and Helm Chart'
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: 'Build and push Docker image'
+      inputs:
+        containerRegistry: $(acrServiceConnection)
+        repository: $(imageName)
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        buildContext: '.'
+        tags: |
+          latest
+          $(Build.BuildNumber)
+          
+    - task: HelmInstaller@1
+      displayName: 'Install Helm'
+      inputs:
+        helmVersionToInstall: 'latest'
+        
+    - script: |
+        # Update Helm chart with built image details
+        sed -i "s/tag: \"latest\"/tag: \"$(Build.BuildNumber)\"/g" $(helmChartPath)/values.yaml
+        sed -i "s/repository: royaai\/presentation/repository: $(containerRegistry)\/$(imageName)/g" $(helmChartPath)/values.yaml
+        
+        # Package Helm chart
+        helm package $(helmChartPath) --version $(helmChartVersion) --app-version $(Build.BuildNumber)
+      displayName: 'Package Helm Chart'
+      
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish Helm Chart'
+      inputs:
+        targetPath: 'royaai-$(helmChartVersion).tgz'
+        artifactName: 'helm-chart'
+
+- stage: DeployDev
+  displayName: 'Deploy to Development'
+  dependsOn: Build
+  condition: and(succeeded(), in(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  jobs:
+  - deployment: DeployDev
+    displayName: 'Deploy to Dev Environment'
+    environment: 'development'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Helm Chart'
+            inputs:
+              artifactName: 'helm-chart'
+              targetPath: '$(Pipeline.Workspace)'
+              
+          - task: HelmInstaller@1
+            displayName: 'Install Helm'
+            inputs:
+              helmVersionToInstall: 'latest'
+              
+          - task: HelmDeploy@0
+            displayName: 'Deploy Helm Chart'
+            inputs:
+              connectionType: 'Kubernetes Service Connection'
+              kubernetesServiceConnection: $(k8sServiceConnection)
+              namespace: 'royaai-dev'
+              command: 'upgrade'
+              chartType: 'FilePath'
+              chartPath: '$(Pipeline.Workspace)/royaai-$(helmChartVersion).tgz'
+              releaseName: 'royaai-dev'
+              overrideValues: 'env.ASPNETCORE_ENVIRONMENT=Development'
+              arguments: '--create-namespace --wait --timeout 5m'
+              
+          - script: |
+              # Test the API endpoint
+              kubectl get svc royaai-dev -n royaai-dev
+            displayName: 'Verify Deployment'
+
+- stage: DeployStaging
+  displayName: 'Deploy to Staging'
+  dependsOn: Build
+  condition: and(succeeded(), in(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - deployment: DeployStaging
+    displayName: 'Deploy to Staging Environment'
+    environment: 'staging'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Helm Chart'
+            inputs:
+              artifactName: 'helm-chart'
+              targetPath: '$(Pipeline.Workspace)'
+              
+          - task: HelmInstaller@1
+            displayName: 'Install Helm'
+            inputs:
+              helmVersionToInst
