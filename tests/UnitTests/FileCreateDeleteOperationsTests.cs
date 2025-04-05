@@ -112,4 +112,5 @@ namespace AgentIO.Tests
             // Verify the delete method was never called
             _fileServiceMock.Verify(fs => fs.DeleteFileAsync(It.IsAny<string>()), Times.Never);
         }
-</rewritten_file> 
+    }
+}
